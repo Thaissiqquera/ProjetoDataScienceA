@@ -1,0 +1,14 @@
+[
+  {
+    "variable": "custo_campanha",
+    "coefficient": 0.013581318225674726
+  },
+  {
+    "variable": "alcance",
+    "coefficient": 0.011967614748832053
+  },
+  {
+    "variable": "conversao",
+    "coefficient": 0.06856724926574928
+  }
+]

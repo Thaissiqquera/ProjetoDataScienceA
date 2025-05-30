@@ -1,0 +1,30 @@
+[
+  {
+    "campanha": "ano_novo",
+    "satisfacao_media": 1.3
+  },
+  {
+    "campanha": "black_friday",
+    "satisfacao_media": 1.0
+  },
+  {
+    "campanha": "dia_maes",
+    "satisfacao_media": 1.25
+  },
+  {
+    "campanha": "dia_pais",
+    "satisfacao_media": 1.33
+  },
+  {
+    "campanha": "natal",
+    "satisfacao_media": 1.51
+  },
+  {
+    "campanha": "sem_campanha",
+    "satisfacao_media": 5.0
+  },
+  {
+    "campanha": "volta_as_aulas",
+    "satisfacao_media": 1.1
+  }
+]

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/">
+    <title>Data Marketing Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Dashboard de Marketing</h1>
+    
+    <!-- Menu Dropdown para Mobile -->
+    <div class="mobile-menu-container">
+      <button class="mobile-menu-button" id="mobileMenuButton">
+        <span>Selecione uma seção</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
+        <button data-section="clustersSection">🔍 Clusters</button>
+        <button data-section="campanhasSection">📈 Campanhas</button>
+        <button data-section="analisesSection">📊 Análises</button>
+        <button data-section="satisfacaoSection">⭐ Satisfação</button>
+        <button data-section="transacoesSection">💰 Transações</button>
+        <button data-section="campanhasDetSection">🎯 Campanhas Detalhadas</button>
+      </div>
+    </div>
+    
+    <!-- Menu Horizontal para Desktop -->
+    <div class="botoes">
+      <button data-section="clustersSection">🔍 Clusters</button>
+      <button data-section="campanhasSection">📈 Campanhas</button>
+      <button data-section="analisesSection">📊 Análises</button>
+      <button data-section="satisfacaoSection">⭐ Satisfação</button>
+      <button data-section="transacoesSection">💰 Transações</button>
+      <button data-section="campanhasDetSection">🎯 Campanhas Detalhadas</button>
+    </div>
+
+    <div id="clustersSection" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2>Visualização de Clusters</h2>
+        </div>
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="clusterFilter">Cluster:</label>
+            <select id="clusterFilter"><option value="all">Todos</option></select>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="clusterChart"></canvas></div>
+        <p class="description">Scatter plot dos clusters (PCA).</p>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2>Diagnóstico de Clusters</h2>
+        </div>
+        <div class="chart-container"><canvas id="clusterDiagChart"></canvas></div>
+        <p class="description">Médias por cluster: frequência, gasto e dias desde última compra.</p>
+      </div>
+    </div>
+
+    <div id="campanhasSection" class="section" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2>Desempenho de Campanhas</h2>
+        </div>
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="campanhaFilter">Campanha:</label>
+            <select id="campanhaFilter"><option value="all">Todas</option></select>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="campanhaChart"></canvas></div>
+        <p class="description">Gasto médio/cliente e ROI das campanhas.</p>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2>Sugestões</h2>
+        </div>
+        <div id="suggestions">
+          <ul id="suggestionList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="analisesSection" class="section" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2>Análise de Regressão</h2>
+        </div>
+        <div class="chart-container"><canvas id="regressionChart"></canvas></div>
+        <p class="description">Coeficientes da regressão linear.</p>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h2>Segmentação CLV</h2>
+        </div>
+        <div class="chart-container"><canvas id="clvChart"></canvas></div>
+        <p class="description">Distribuição de segmentos CLV.</p>
+      </div>
+    </div>
+
+    <div id="satisfacaoSection" class="section" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2>Satisfação por Campanha</h2>
+        </div>
+        <div class="tabela-container" id="tableContainer">
+          <div class="loading"></div>
+        </div>
+        <p class="description">Tabela com satisfação média por campanha (1 a 5).</p>
+      </div>
+    </div>
+    
+    <div id="transacoesSection" class="section" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2>Transações Completas</h2>
+        </div>
+        
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value" id="totalTransacoes">-</div>
+            <div class="stat-label">Total de Transações</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="valorMedio">-</div>
+            <div class="stat-label">Valor Médio (R$)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalClientes">-</div>
+            <div class="stat-label">Total de Clientes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ultimaTransacao">-</div>
+            <div class="stat-label">Última Transação</div>
+          </div>
+        </div>
+        
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="transacaoFilter">Campanha:</label>
+            <select id="transacaoFilter"><option value="all">Todas</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="clienteFilter">Cliente ID:</label>
+            <input type="text" id="clienteFilter" placeholder="Filtrar por ID">
+          </div>
+          <div class="filter-group">
+            <label for="dataInicioFilter">Data Início:</label>
+            <input type="date" id="dataInicioFilter">
+          </div>
+          <div class="filter-group">
+            <label for="dataFimFilter">Data Fim:</label>
+            <input type="date" id="dataFimFilter">
+          </div>
+          <button id="aplicarFiltros">Aplicar Filtros</button>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="transacoesTempoChart"></canvas>
+        </div>
+        <p class="description">Distribuição de transações ao longo do tempo.</p>
+        
+        <div class="tabela-container" id="transacoesTableContainer">
+          <div class="loading"></div>
+        </div>
+        
+        <div class="pagination" id="transacoesPagination">
+          <!-- Paginação será inserida via JavaScript -->
+        </div>
+      </div>
+    </div>
+    
+    <div id="campanhasDetSection" class="section" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2>Detalhes de Campanhas</h2>
+        </div>
+        
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-value" id="totalCampanhas">-</div>
+            <div class="stat-label">Total de Campanhas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="custoTotal">-</div>
+            <div class="stat-label">Custo Total (R$)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="alcanceTotal">-</div>
+            <div class="stat-label">Alcance Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="conversaoTotal">-</div>
+            <div class="stat-label">Conversões Totais</div>
+          </div>
+        </div>
+        
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="campanhaDet">Campanha:</label>
+            <select id="campanhaDet"><option value="all">Todas</option></select>
+          </div>
+          <button id="aplicarFiltroCampanha">Aplicar Filtro</button>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="campanhasMetricasChart"></canvas>
+        </div>
+        <p class="description">Comparação de métricas entre campanhas.</p>
+        
+        <div class="chart-container">
+          <canvas id="campanhaEficienciaChart"></canvas>
+        </div>
+        <p class="description">Eficiência das campanhas (Custo por Aquisição e Taxa de Conversão).</p>
+        
+        <div class="tabela-container" id="campanhasTableContainer">
+          <div class="loading"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+<footer-btn></footer-btn>
+<script>
+    // 定义自定义元素
+    class FooterBtn extends HTMLElement {
+        constructor() {
+            super();
+            // 创建 Shadow DOM
+            const shadow = this.attachShadow({ mode: 'open' });
+            // 创建组件的HTML结构
+            const wrapper = document.createElement('div');
+            wrapper.setAttribute('class', 'wrapper');
+            // 添加一些内容到组件中
+            wrapper.innerHTML = `
+                <div class="page-footer">
+                    <div class="tooltip-dialog">Not an official Manus website nor endorsed by Manus. Content may contain inaccuracies; double-check before use. Do not submit passwords, credit cards, or personal information.</div>
+                    <div class="footer-close-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <g clip-path="url(#clip0_5850_97234)">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.733398 8.00104C0.733398 3.98777 3.9868 0.734375 8.00006 0.734375C12.0133 0.734375 15.2667 3.98777 15.2667 8.00104C15.2667 12.0143 12.0133 15.2677 8.00006 15.2677C3.9868 15.2677 0.733398 12.0143 0.733398 8.00104Z" fill="white"/>
+                        <path d="M1.2334 8.00104C1.2334 4.26391 4.26294 1.23438 8.00006 1.23438C11.7372 1.23438 14.7667 4.26391 14.7667 8.00104C14.7667 11.7382 11.7372 14.7677 8.00006 14.7677C4.26294 14.7677 1.2334 11.7382 1.2334 8.00104Z" stroke="black" stroke-opacity="0.14" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5.57576 5.57613C5.81007 5.34181 6.18997 5.34181 6.42429 5.57613L8.00002 7.15186L9.57576 5.57613C9.81007 5.34181 10.19 5.34181 10.4243 5.57613C10.6586 5.81044 10.6586 6.19034 10.4243 6.42465L8.84855 8.00039L10.4243 9.57613C10.6586 9.81044 10.6586 10.1903 10.4243 10.4247C10.19 10.659 9.81007 10.659 9.57576 10.4247L8.00002 8.84892L6.42429 10.4247C6.18997 10.659 5.81007 10.659 5.57576 10.4247C5.34145 10.1903 5.34145 9.81044 5.57576 9.57613L7.1515 8.00039L5.57576 6.42465C5.34145 6.19034 5.34145 5.81044 5.57576 5.57613Z" fill="#858481"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_5850_97234">
+                        <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                        </defs>
+                        </svg>
+                    </div>
+                    <div class="footer-bg">
+                        <div class="tooltip-box">
+                            <div class="tooltip-desc">This user-generated website was created with AI. Use with caution.</div>
+                            <span
+                                class="tooltip-icon"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <g clip-path="url(#clip0_4345_83044)">
+                                        <path
+                                            d="M6 8V6M6 4H6.005M11 6C11 8.76142 8.76142 11 6 11C3.23858 11 1 8.76142 1 6C1 3.23858 3.23858 1 6 1C8.76142 1 11 3.23858 11 6Z"
+                                            stroke="#858481"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_4345_83044">
+                                            <rect width="12" height="12" fill="white" />
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <a href="https://manus.im/app?from=space" target="_blank" class="footer-button">
+                        <span class="footer-logo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path
+                                    d="M13.2251 16.9379C14.4717 16.147 15.3336 11.9052 15.144 10.6421C15.144 10.6421 14.9464 9.96396 14.4643 9.96394C13.9821 9.96391 13.7815 10.4719 13.7815 10.4719C13.7815 10.4719 13.6546 10.9409 13.4555 11.5313C13.1474 12.4447 13.0178 13.5718 12.2143 13.8571C11.4107 14.1425 10.6071 13.8725 10.6071 13.8725C11.1535 15.9448 11.9785 17.7288 13.2251 16.9379Z"
+                                    fill="white"
+                                />
+                                <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M7.04826 9.17689C6.59029 9.22824 6.34906 9.40136 6.26768 9.48274C5.94625 9.80417 5.78554 10.1256 5.78554 10.2863C5.78554 10.447 5.40745 9.53393 5.32437 9.44837C5.07703 9.19366 5.083 8.78667 5.33771 8.53933C5.69527 8.19212 6.28003 7.96925 6.90502 7.89918C7.55323 7.82651 8.3219 7.9075 9.09971 8.25205C10.0075 8.65415 10.4937 9.50199 10.6773 10.2768C10.7705 10.6701 10.7943 11.0743 10.7466 11.4426C10.7002 11.8002 10.5781 12.1826 10.3242 12.4736C9.79525 13.0799 9.01508 13.0116 8.593 12.9221C8.35518 12.8716 8.14542 12.7975 7.99786 12.738C7.92303 12.7079 7.86158 12.6804 7.81747 12.6597C7.79535 12.6493 7.77743 12.6406 7.7642 12.6341C7.75757 12.6308 7.75211 12.628 7.74786 12.6259L7.7424 12.6231L7.74037 12.622L7.73915 12.6214C7.73915 12.6214 7.7388 12.6212 8.03568 12.051L7.7388 12.6212C7.42389 12.4573 7.30152 12.069 7.46548 11.7541C7.62912 11.4398 8.01612 11.3173 8.3307 11.4798M8.3307 11.4798L8.33145 11.4802L8.3307 11.4798ZM8.3307 11.4798L8.33531 11.4822C8.34052 11.4847 8.3498 11.4893 8.36271 11.4953C8.38864 11.5075 8.42852 11.5254 8.4788 11.5457C8.58146 11.5871 8.71705 11.6341 8.85982 11.6644C9.19892 11.7363 9.32081 11.668 9.3554 11.6284C9.38325 11.5965 9.44396 11.4899 9.47154 11.2773C9.49771 11.0755 9.48663 10.8281 9.42625 10.5733C9.30267 10.0519 9.00685 9.61712 8.57899 9.42759C8.02117 9.1805 7.48301 9.12815 7.04826 9.17689"
+                                    fill="white"
+                                />
+                                <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M2.79812 2.53348C2.64176 2.85224 2.7734 3.2374 3.09216 3.39376C3.55 3.61834 3.94731 3.83979 4.34068 4.28331C4.57627 4.54892 4.98258 4.57326 5.2482 4.33767C5.51381 4.10208 5.53815 3.69577 5.30256 3.43016C4.742 2.79815 4.16499 2.48794 3.65839 2.23944C3.33963 2.08308 2.95448 2.21473 2.79812 2.53348Z"
+                                    fill="white"
+                                />
+                                <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M6.27275 0.662519C5.92831 0.748629 5.71889 1.09766 5.805 1.4421C5.86516 1.68274 5.92127 1.8885 5.97263 2.07686C6.07093 2.43738 6.15185 2.73415 6.21054 3.08969C6.26837 3.43999 6.59923 3.67708 6.94952 3.61926C7.29982 3.56143 7.53692 3.23058 7.47909 2.88028C7.40972 2.46006 7.3017 2.06246 7.19328 1.66338C7.14526 1.48666 7.09717 1.30966 7.05233 1.13027C6.96622 0.785827 6.61719 0.57641 6.27275 0.662519Z"
+                                    fill="white"
+                                />
+                                <path
+                                    d="M8.99979 3.21456C9.16051 2.57171 9.32122 2.08956 9.61377 1.60742"
+                                    stroke="white"
+                                    stroke-width="1.28571"
+                                    stroke-miterlimit="10"
+                                    stroke-linecap="round"
+                                />
+                            </svg>
+                        </span>
+                        <span class="footer-text">Made with Manus</span>
+                    </a>
+                </div>
+            `;
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-footer {
+                    position: fixed;
+                    bottom: 0;
+                    right: 0;
+                    z-index: 999;
+                }
+                .footer-bg {
+                    position: relative;
+                }
+                .footer-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    padding: 8px 12px;
+                    background-color: #000000;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 8px 0 0 0;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+                .footer-text {
+                    white-space: nowrap;
+                }
+                .tooltip-box {
+                    position: relative;
+                    display: inline-block;
+                }
+                .tooltip-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    margin-left: 4px;
+                }
+                .tooltip-dialog {
+                    position: absolute;
+                    bottom: 40px;
+                    right: 0;
+                    width: 300px;
+                    padding: 12px;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    font-size: 12px;
+                    line-height: 1.5;
+                    color: #333333;
+                    display: none;
+                    z-index: 1000;
+                }
+                .tooltip-box:hover .tooltip-dialog,
+                .tooltip-icon:hover + .tooltip-dialog {
+                    display: block;
+                }
+                .footer-close-btn {
+                    position: absolute;
+                    top: -16px;
+                    right: 0;
+                    cursor: pointer;
+                    display: none;
+                }
+                @media (max-width: 768px) {
+                    .tooltip-dialog {
+                        width: 250px;
+                    }
+                }
+            `;
+            // 将样式和内容添加到 shadow DOM
+            shadow.appendChild(style);
+            shadow.appendChild(wrapper);
+            // 添加事件监听器
+            const closeBtn = wrapper.querySelector('.footer-close-btn');
+            const footer = wrapper.querySelector('.page-footer');
+            closeBtn.addEventListener('click', () => {
+                footer.style.display = 'none';
+            });
+            const tooltipIcon = wrapper.querySelector('.tooltip-icon');
+            const tooltipDialog = wrapper.querySelector('.tooltip-dialog');
+            tooltipIcon.addEventListener('mouseenter', () => {
+                tooltipDialog.style.display = 'block';
+            });
+            tooltipIcon.addEventListener('mouseleave', () => {
+                tooltipDialog.style.display = 'none';
+            });
+        }
+    }
+    // 注册自定义元素
+    customElements.define('footer-btn', FooterBtn);
+</script>
+</body>
+</html>

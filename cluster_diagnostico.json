@@ -1,0 +1,20 @@
+[
+  {
+    "cluster":0,
+    "frequencia_compras":8.25,
+    "total_gasto":4499.12,
+    "ultima_compra":88.45
+  },
+  {
+    "cluster":1,
+    "frequencia_compras":9.02,
+    "total_gasto":4937.41,
+    "ultima_compra":275.79
+  },
+  {
+    "cluster":2,
+    "frequencia_compras":13.83,
+    "total_gasto":5530.32,
+    "ultima_compra":148.54
+  }
+]
